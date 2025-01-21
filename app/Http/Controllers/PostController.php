@@ -14,7 +14,10 @@ class PostController extends Controller
      */
     public function index()
     {
+        //get posts
         $posts = Post::latest()->paginate(5);
+
+        //render view with posts
         return view('posts.index', compact('posts'));
     }
 
@@ -25,7 +28,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('posts.create');
     }
 
     /**
@@ -36,7 +39,22 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request,[
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif.svg|max:2048',
+            'title' => 'required|min:5',
+            'content' => 'required|min:10'
+        ]);
+
+        $image = $request->file('image');
+        $image->storeAs('public/posts', $image->hashName());
+
+        Post::create([
+            'image' => $image->hashName(),
+            'title' => $request->title,
+            'content' => $request->content
+        ]);
+
+        return redirect()->route('posts.index')->with(['success' => 'Data Berhasil Disimpan!']);
     }
 
     /**
