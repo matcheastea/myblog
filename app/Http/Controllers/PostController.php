@@ -90,31 +90,31 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         $this->validate($request, [
-            'image' => 'image|mimes:jpeg,png,jpg,gif.svg|max:2048',
-            'title' => 'required|min:5',
-            'content' => 'required|min:10'
+            'image'     => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'title'     => 'required|min:5',
+            'content'   => 'required|min:10'
         ]);
 
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
+
             $image = $request->file('image');
             $image->storeAs('public/posts', $image->hashName());
 
-            Storage::delete('public/posts'.$post->image);
+            Storage::delete('public/posts/'.$post->image);
 
             $post->update([
-                'image' => $image->hashName(),
-                'title' => $request->title,
-                'content' => $request->content
+                'image'     => $image->hashName(),
+                'title'     => $request->title,
+                'content'   => $request->content
             ]);
 
-        }else{
+        } else {
             $post->update([
-                'title' => $request->title,
-                'content' => $request->content
+                'title'     => $request->title,
+                'content'   => $request->content
             ]);
         }
         return redirect()->route('posts.index')->with(['success' => 'Data Berhasil Diubah!']);
-        }
     }
 
     /**
@@ -123,8 +123,12 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    // public function destroy($id)
-    // {
-    //     //
-    // }
+    public function destroy(Post $post)
+    {
+        Storage::delete('public/posts/'.$post->image);
 
+        $post->delete();
+
+        return redirect()->route('posts.index')->with(['success' => 'Data Berhasil Dihapus!']);
+    }
+}
